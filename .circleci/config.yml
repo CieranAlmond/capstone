@@ -65,7 +65,6 @@ build-test-push:
             echo "CIRCLE CI WORKFLOW ID ${CIRCLE_WORKFLOW_ID:0:7}"
             docker push kibnov/container:${CIRCLE_WORKFLOW_ID:0:7}
             docker push kibnov/container:latest
-        
 create-cluster:
     executor: aws-eks/python3
     parameters:
@@ -88,7 +87,7 @@ create-cluster:
       - aws-eks/create-cluster:
           cluster-name: << parameters.cluster-name >>
 
-create-deployment:
+  create-deployment:
     executor: aws-eks/python3
     parameters:
       cluster-name:
@@ -107,7 +106,7 @@ create-deployment:
           resource-file-path: deployment.yml
           resource-name: deployment/aws-capstone
 
-test-cluster:
+  test-cluster:
     executor: aws-eks/python3
     parameters:
       cluster-name:
@@ -143,7 +142,7 @@ workflows:
 
       - aws-eks/update-container-image:
           cluster-name: devops-capstone-project
-          container-image-updates: 'aws-capstone=kibnov/aws-capstone:${CIRCLE_WORKFLOW_ID:0:7}'
+          container-image-updates: 'aws-capstone=kibnov/container:${CIRCLE_WORKFLOW_ID:0:7}'
           get-rollout-status: true
           record: true
           requires:
