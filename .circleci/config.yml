@@ -107,7 +107,7 @@ create-deployment:
           resource-file-path: deployment.yml
           resource-name: deployment/aws-capstone
 
-  test-cluster:
+test-cluster:
     executor: aws-eks/python3
     parameters:
       cluster-name:
