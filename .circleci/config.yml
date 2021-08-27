@@ -87,7 +87,7 @@ create-cluster:
       - aws-eks/create-cluster:
           cluster-name: << parameters.cluster-name >>
 
-  create-deployment:
+create-deployment:
     executor: aws-eks/python3
     parameters:
       cluster-name:
