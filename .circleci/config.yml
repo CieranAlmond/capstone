@@ -47,7 +47,7 @@ jobs:
       - run:
           name: Build, test and push docker image
           command: |
-            docker login -u ${kibnov} -p ${"Mycatissobad123!"}
+            docker login -u ${kibnov} -p ${Mycatissobad123!}
             docker build -t kibnov/container -t kibnov/container:${CIRCLE_WORKFLOW_ID:0:7} .
             docker run -d --rm --name flaskapp -p 8000:8080 kibnov/container:${CIRCLE_WORKFLOW_ID:0:7}
             sleep 5
@@ -55,7 +55,7 @@ jobs:
             export url="http://localhost:8000"
             export response=$(curl -s $url)
             echo "This is response $response"
-            if [[ $response == *"cieran"* ]]; then
+            if [[ $response == *"kibnov"* ]]; then
               docker stop flaskapp
             else
               docker stop flaskapp
