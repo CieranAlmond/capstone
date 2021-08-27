@@ -40,7 +40,7 @@ jobs:
             source venv/bin/activate
             make lint
             
-  build-test-push:
+build-test-push:
     machine: true
     working_directory: ~/app
     steps:
@@ -56,7 +56,7 @@ jobs:
             export url="http://localhost:8000"
             export response=$(curl -s $url)
             echo "This is response $response"
-            if [[ $response == *"Cieran"* ]]; then
+            if [[ $response == *"kibnov"* ]]; then
               docker stop flaskapp
             else
               docker stop flaskapp
@@ -66,7 +66,7 @@ jobs:
             docker push kibnov/container:${CIRCLE_WORKFLOW_ID:0:7}
             docker push kibnov/container:latest
         
-  create-cluster:
+create-cluster:
     executor: aws-eks/python3
     parameters:
       cluster-name:
