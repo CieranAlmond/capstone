@@ -17,7 +17,7 @@ jobs:
     docker:
       - image: circleci/python:3.7.3-stretch
     steps:
-      - checkout
+      - checkout 
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "requirements.txt" }}
@@ -41,88 +41,88 @@ jobs:
             make lint
             
 build-test-push:
-    machine: true
-    working_directory: ~/app
-    steps:
-      - checkout
-      - run:
-          name: Build, test and push docker image
-          command: |
-            docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PWD}
-            docker build -t kibnov/container -t kibnov/container:${CIRCLE_WORKFLOW_ID:0:7} .
-            docker run -d --rm --name flaskapp -p 8000:8080 kibnov/container:${CIRCLE_WORKFLOW_ID:0:7}
-            sleep 5
-            docker container ls
-            export url="http://localhost:8000"
-            export response=$(curl -s $url)
-            echo "This is response $response"
-            if [[ $response == *"kibnov"* ]]; then
-              docker stop flaskapp
-            else
-              docker stop flaskapp
-              exit 1
-            fi
-            echo "CIRCLE CI WORKFLOW ID ${CIRCLE_WORKFLOW_ID:0:7}"
-            docker push kibnov/container:${CIRCLE_WORKFLOW_ID:0:7}
-            docker push kibnov/container:latest
+  machine: true
+  working_directory: ~/app
+  steps:
+    - checkout
+    - run:
+        name: Build, test and push docker image
+        command: |
+          docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PWD}
+          docker build -t kibnov/container -t kibnov/container:${CIRCLE_WORKFLOW_ID:0:7} .
+          docker run -d --rm --name flaskapp -p 8000:8080 kibnov/container:${CIRCLE_WORKFLOW_ID:0:7}
+          sleep 5
+          docker container ls
+          export url="http://localhost:8000"
+          export response=$(curl -s $url)
+          echo "This is response $response"
+          if [[ $response == *"kibnov"* ]]; then
+            docker stop flaskapp
+          else
+            docker stop flaskapp
+            exit 1
+          fi
+          echo "CIRCLE CI WORKFLOW ID ${CIRCLE_WORKFLOW_ID:0:7}"
+          docker push kibnov/container:${CIRCLE_WORKFLOW_ID:0:7}
+          docker push kibnov/container:latest
 create-cluster:
-    executor: aws-eks/python3
-    parameters:
-      cluster-name:
-        description: |
-          Name of the EKS cluster
-        type: string
-    steps:
-      - run:
-          name: Set var
-          command: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-            aws --version
-            export clusters=$(aws eks list-clusters)
-            if [[ $clusters == *"<< parameters.cluster-name >>"* ]]; then
-              circleci-agent step halt
-            fi
-      - aws-eks/create-cluster:
-          cluster-name: << parameters.cluster-name >>
+  executor: aws-eks/python3
+  parameters:
+    cluster-name:
+      description: |
+        Name of the EKS cluster
+      type: string
+  steps:
+    - run:
+        name: Set var
+        command: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
+          aws --version
+          export clusters=$(aws eks list-clusters)
+          if [[ $clusters == *"<< parameters.cluster-name >>"* ]]; then
+            circleci-agent step halt
+          fi
+    - aws-eks/create-cluster:
+        cluster-name: << parameters.cluster-name >>
 
 create-deployment:
-    executor: aws-eks/python3
-    parameters:
-      cluster-name:
-        description: |
-          Name of the EKS cluster
-        type: string
+  executor: aws-eks/python3
+  parameters:
+    cluster-name:
+      description: |
+        Name of the EKS cluster
+      type: string
 
-    steps:
-      - checkout
-      - kubernetes/install
-      - aws-eks/update-kubeconfig-with-authenticator:
-          cluster-name: << parameters.cluster-name >>
-          install-kubectl: true
-      - kubernetes/create-or-update-resource:
-          get-rollout-status: true
-          resource-file-path: deployment.yml
-          resource-name: deployment/aws-capstone
+  steps:
+    - checkout
+    - kubernetes/install
+    - aws-eks/update-kubeconfig-with-authenticator:
+        cluster-name: << parameters.cluster-name >>
+        install-kubectl: true
+    - kubernetes/create-or-update-resource:
+        get-rollout-status: true
+        resource-file-path: deployment.yml
+        resource-name: deployment/aws-capstone
 
 test-cluster:
-    executor: aws-eks/python3
-    parameters:
-      cluster-name:
-        description: |
-          Name of the EKS cluster
-        type: string
-    steps:
-      - kubernetes/install
-      - aws-eks/update-kubeconfig-with-authenticator:
-          cluster-name: << parameters.cluster-name >>
-      - run:
-          name: Test cluster
-          command: |
-            kubectl get svc
-            kubectl get nodes
-            kubectl get deployment
+  executor: aws-eks/python3
+  parameters:
+    cluster-name:
+      description: |
+        Name of the EKS cluster
+      type: string
+  steps:
+    - kubernetes/install
+    - aws-eks/update-kubeconfig-with-authenticator:
+        cluster-name: << parameters.cluster-name >>
+    - run:
+        name: Test cluster
+        command: |
+          kubectl get svc
+          kubectl get nodes
+          kubectl get deployment
 workflows:
   capstone:
     jobs:
