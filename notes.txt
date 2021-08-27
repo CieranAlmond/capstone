@@ -1,0 +1,5 @@
+CI/CD: Circle CI 
+Deployment: rollingupdate
+Docker: Nginx
+Infrasturcture: Cloudformation
+Testing: Lint

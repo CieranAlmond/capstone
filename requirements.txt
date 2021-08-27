@@ -1,5 +1,2 @@
-CI/CD: Circle CI 
-Deployment: Blue/Green
-Docker: Nginx
-Infrasturcture: Cloudformation
-Testing: Lint
+flask
+pylint
