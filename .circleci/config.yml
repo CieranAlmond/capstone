@@ -71,6 +71,9 @@ jobs:
             unzip awscliv2.zip
             sudo ./aws/install
             aws --version
+      
+      - aws-eks/create-cluster:
+          cluster-name: << parameters.cluster-name >>
             
 
   create-deployment:
