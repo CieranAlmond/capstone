@@ -61,7 +61,7 @@ jobs:
   create-cluster:
     executor: aws-eks/python3
     parameters:
-      cluster-name: udacity-capstone
+      cluster-name: 
         description: |
           Name of the EKS cluster
         type: string
