@@ -43,7 +43,8 @@ jobs:
       - run: sudo pip install awscli
       - run: sudo pip install --upgrade awscli
       - run: aws --version
-
+      
+    
       - run:
           name: install kubectl
           command: |
@@ -60,7 +61,7 @@ jobs:
       - run:
           name: login
           command: |
-            aws ecr get-login-password --region us-west-2 | docker login --username aws --password-stdin 186999742423.dkr.ecr.us-west-2.amazonaws.com/kibnov
+            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 186999742423.dkr.ecr.us-west-2.amazonaws.com/capstone
       - setup_remote_docker
 
       - run:
