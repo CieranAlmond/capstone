@@ -72,9 +72,8 @@ jobs:
             sudo ./aws/install
             aws --version
             export clusters=$(aws eks list-clusters)
-            if [[ $clusters == *"<< parameters.cluster-name >>"* ]]; then
-              circleci-agent step halt
-            fi
+            
+            
       - aws-eks/create-cluster:
           cluster-name: << parameters.cluster-name >>
 
