@@ -39,8 +39,6 @@ jobs:
           command: |
             source venv/bin/activate
             make lint
-            
-  
   build-test-push:
     machine: true
     working_directory: ~/app
@@ -49,13 +47,23 @@ jobs:
       - run:
           name: Build, test and push docker image
           command: |
-
-            docker build -t kibnov/container -t kibnov/container:${CIRCLE_WORKFLOW_ID:0:7} .
-            docker run -d --rm --name flaskapp -p 8000:8080 kibnov/container:${CIRCLE_WORKFLOW_ID:0:7}
+            docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PWD}
+            docker build -t melsayed7/aws-capstone -t melsayed7/aws-capstone:${CIRCLE_WORKFLOW_ID:0:7} .
+            docker run -d --rm --name flaskapp -p 8000:8080 melsayed7/aws-capstone:${CIRCLE_WORKFLOW_ID:0:7}
             sleep 5
-            
-            
-          
+            docker container ls
+            export url="http://localhost:8000"
+            export response=$(curl -s $url)
+            echo "This is response $response"
+            if [[ $response == *"Moustafa"* ]]; then
+              docker stop flaskapp
+            else
+              docker stop flaskapp
+              exit 1
+            fi
+            echo "CIRCLE CI WORKFLOW ID ${CIRCLE_WORKFLOW_ID:0:7}"
+            docker push melsayed7/aws-capstone:${CIRCLE_WORKFLOW_ID:0:7}
+            docker push melsayed7/aws-capstone:latest
   create-cluster:
     executor: aws-eks/python3
     parameters:
@@ -71,10 +79,12 @@ jobs:
             unzip awscliv2.zip
             sudo ./aws/install
             aws --version
-      
+            export clusters=$(aws eks list-clusters)
+            if [[ $clusters == *"<< parameters.cluster-name >>"* ]]; then
+              circleci-agent step halt
+            fi
       - aws-eks/create-cluster:
           cluster-name: << parameters.cluster-name >>
-            
 
   create-deployment:
     executor: aws-eks/python3
@@ -131,7 +141,7 @@ workflows:
 
       - aws-eks/update-container-image:
           cluster-name: devops-capstone-project
-          container-image-updates: 'aws-capstone=kibnov/aws-capstone:${CIRCLE_WORKFLOW_ID:0:7}'
+          container-image-updates: 'aws-capstone=melsayed7/aws-capstone:${CIRCLE_WORKFLOW_ID:0:7}'
           get-rollout-status: true
           record: true
           requires:
