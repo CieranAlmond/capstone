@@ -71,11 +71,7 @@ jobs:
             unzip awscliv2.zip
             sudo ./aws/install
             aws --version
-            export clusters=$(aws eks list-clusters)
             
-            
-      - aws-eks/create-cluster:
-          cluster-name: << parameters.cluster-name >>
 
   create-deployment:
     executor: aws-eks/python3
